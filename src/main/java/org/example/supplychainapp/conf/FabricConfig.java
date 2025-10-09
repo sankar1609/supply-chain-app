@@ -40,4 +40,3 @@ public class FabricConfig {
         return network.getContract("SupplyChainContract");
     }
 }
-
