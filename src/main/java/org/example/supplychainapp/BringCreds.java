@@ -17,7 +17,7 @@ public class BringCreds {
         Path walletPath = Paths.get("wallet");
         Wallet wallet = Wallets.newFileSystemWallet(walletPath);
 
-        Path credentialPath = Paths.get("/Users/sankarmani/Documents/ThisIsMyProject/fabric-samples", "test-network", "organizations", "peerOrganizations",
+        Path credentialPath = Paths.get("/Users/sankarmani/Documents/ThisIsMyProject/new_fabric/fabric-samples", "test-network", "organizations", "peerOrganizations",
                 "org1.example.com", "users", "User1@org1.example.com", "msp");
 
         Path certPath = credentialPath.resolve(Paths.get("signcerts", "cert.pem"));

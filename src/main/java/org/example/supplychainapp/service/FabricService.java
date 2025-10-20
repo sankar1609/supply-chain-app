@@ -15,10 +15,10 @@ public class FabricService {
         this.contract = contract;
     }
 
-    public byte[] createProduct(String productId, String name, String category, String size) throws Exception {
-        logger.info("Service: Creating product with id={}, name={}, category={}, size={}", productId, name, category, size);
+    public byte[] createProduct(String productId, String name, String category, String quantity) throws Exception {
+        logger.info("Service: Creating product with id={}, name={}, category={}, quantity={}", productId, name, category, quantity);
         try {
-            byte[] result = contract.submitTransaction("AssetContract:createProduct", productId, name, category, size);
+            byte[] result = contract.submitTransaction("AssetContract:createProduct", productId, name, category, quantity);
             logger.info("Service: Product created successfully: id={}", productId);
             return result;
         } catch (Exception e) {
@@ -39,10 +39,10 @@ public class FabricService {
         }
     }
 
-    public byte[] updateProductQuantity(String productId, String size) throws Exception {
-        logger.info("Service: Updating product quantity: id={}, new size={}", productId, size);
+    public byte[] updateProductQuantity(String productId, String quantity) throws Exception {
+        logger.info("Service: Updating product quantity: id={}, new quantity={}", productId, quantity);
         try {
-            byte[] result = contract.submitTransaction("AssetContract:updateProductQuantity", productId, size);
+            byte[] result = contract.submitTransaction("AssetContract:updateProductQuantity", productId, quantity);
             logger.info("Service: Product updated successfully: id={}", productId);
             return result;
         } catch (Exception e) {
@@ -63,13 +63,13 @@ public class FabricService {
         }
     }
 
-    public byte[] createShipment(String shipmentId, String productId, String origin, String destination, String career,
+    public byte[] createShipment(String shipmentId, String productId, String origin, String destination, String carrier,
                                  String quantity) throws Exception {
-        logger.info("Service: Creating shipment: id={}, productId={}, origin={}, destination={}, career={}, quantity{}",
-                shipmentId, productId, origin, destination, career, quantity);
+        logger.info("Service: Creating shipment: id={}, productId={}, origin={}, destination={}, carrier={}, quantity{}",
+                shipmentId, productId, origin, destination, carrier, quantity);
         try {
             byte[] result = contract.submitTransaction("ShipmentContract:createShipment", shipmentId, productId, origin, destination,
-                    career, quantity);
+                    carrier, quantity);
             logger.info("Service: Shipment created successfully: id={}", shipmentId);
             return result;
         } catch (Exception e) {

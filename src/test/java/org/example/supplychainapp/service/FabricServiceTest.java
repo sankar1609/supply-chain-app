@@ -24,7 +24,7 @@ class FabricServiceTest {
     void createProductReturnsExpectedResult() throws Exception {
         byte[] expected = "created".getBytes();
         when(contractMock.submitTransaction(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(expected);
-        byte[] result = fabricService.createProduct("1", "name", "cat", "size");
+        byte[] result = fabricService.createProduct("1", "name", "cat", "quantity");
         assertArrayEquals(expected, result);
     }
 
@@ -32,7 +32,7 @@ class FabricServiceTest {
     @DisplayName("createProduct throws exception on failure")
     void createProductThrowsException() throws Exception {
         when(contractMock.submitTransaction(anyString(), anyString(), anyString(), anyString(), anyString())).thenThrow(new RuntimeException("fail"));
-        Exception ex = assertThrows(Exception.class, () -> fabricService.createProduct("1", "name", "cat", "size"));
+        Exception ex = assertThrows(Exception.class, () -> fabricService.createProduct("1", "name", "cat", "quantity"));
         assertEquals("fail", ex.getMessage());
     }
 
@@ -69,7 +69,7 @@ class FabricServiceTest {
         byte[] expected = "shipmentCreated".getBytes();
         when(contractMock.submitTransaction(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(expected);
         byte[] result = fabricService.createShipment("sid", "pid",
-                "origin", "dest", "career","quantity");
+                "origin", "dest", "carrier","quantity");
         assertArrayEquals(expected, result);
     }
 
@@ -91,4 +91,3 @@ class FabricServiceTest {
         assertArrayEquals(expected, result);
     }
 }
-

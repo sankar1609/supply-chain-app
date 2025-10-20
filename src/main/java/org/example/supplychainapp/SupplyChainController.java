@@ -28,9 +28,9 @@ public class SupplyChainController {
             String productId = payload.getProductId();
             String name = payload.getProductName();
             String category = payload.getCategory();
-            Integer size = payload.getSize();
+            Integer quantity = payload.getQuantity();
 
-            fabricService.createProduct(productId, name, category, size.toString());
+            fabricService.createProduct(productId, name, category, quantity.toString());
             return ResponseEntity.ok(Map.of(
                 "message", "Product created successfully"
             ));
@@ -43,7 +43,7 @@ public class SupplyChainController {
     }
 
     // ========================= QUERY =========================
-    @GetMapping("/query/{productId}")
+    @GetMapping("/queryProduct/{productId}")
     public ResponseEntity<?> queryAsset(@PathVariable String productId) {
         logger.info("Received request to query product: id={}", productId);
         try {
@@ -67,8 +67,8 @@ public class SupplyChainController {
             @RequestBody Map<String, String> payload) {
         logger.info("Received request to update product: id={}", productId);
         try {
-            String size = payload.get("size");
-            fabricService.updateProductQuantity(productId, size);
+            String quantity = payload.get("quantity");
+            fabricService.updateProductQuantity(productId, quantity);
             return ResponseEntity.ok(Map.of(
                 "message", "Product updated successfully"
             ));
@@ -81,7 +81,7 @@ public class SupplyChainController {
     }
 
     // ========================= DELETE =========================
-    @DeleteMapping("/delete/{productId}")
+    @DeleteMapping("/removeProduct/{productId}")
     public ResponseEntity<?> deleteAsset(@PathVariable String productId) {
         logger.info("Received request to delete product: id={}", productId);
         try {
@@ -105,10 +105,10 @@ public class SupplyChainController {
             String productId = payload.get("productId");
             String origin = payload.get("origin");
             String destination = payload.get("destination");
-            String career = payload.get("career");
+            String carrier = payload.get("carrier");
             String quantity = payload.get("quantity");
 
-            fabricService.createShipment(shipmentId, productId, origin, destination, career, quantity);
+            fabricService.createShipment(shipmentId, productId, origin, destination, carrier, quantity);
             return ResponseEntity.ok(Map.of(
                 "message", "Shipment created successfully"
             ));

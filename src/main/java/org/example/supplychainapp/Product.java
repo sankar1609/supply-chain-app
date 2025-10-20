@@ -4,7 +4,7 @@ public class Product {
     private String productId;
     private String productName;
     private String category;
-    private Integer size;
+    private Integer quantity;
 
     public String getProductId() {
         return productId;
@@ -30,11 +30,11 @@ public class Product {
         this.category = category;
     }
 
-    public Integer getSize() {
-        return size;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setSize(Integer size) {
-        this.size = size;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }
