@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
-@RequestMapping("/api/assets")
+@RequestMapping("/fabric/assets")
 public class SupplyChainController {
 
     private final FabricService fabricService;
@@ -18,6 +18,20 @@ public class SupplyChainController {
 
     public SupplyChainController(FabricService fabricService) {
         this.fabricService = fabricService;
+    }
+
+    // Helper to determine if an exception indicates a missing product
+    private boolean isProductNotFound(Throwable e) {
+        if (e == null || e.getMessage() == null) return false;
+        String msg = e.getMessage().toLowerCase();
+        return msg.contains("product not found") || msg.contains("not found") || msg.contains("does not exist") || msg.contains("not exist");
+    }
+
+    // Helper to determine if an exception indicates the product already exists
+    private boolean isProductAlreadyExists(Throwable e) {
+        if (e == null || e.getMessage() == null) return false;
+        String msg = e.getMessage().toLowerCase();
+        return msg.contains("already exists") || msg.contains("already exists.");
     }
 
     // ========================= CREATE =========================
@@ -35,7 +49,13 @@ public class SupplyChainController {
                 "message", "Product created successfully"
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to create product: id={}", payload.getProductId());
+            logger.warn("Request failed to create product: id={} error={}", payload.getProductId(), e.getMessage());
+            // If the error indicates the product already exists, return a clear message
+            if (isProductAlreadyExists(e)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "error", String.format("Product with id: %s already exists", payload.getProductId())
+                ));
+            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "Failed to create product"
             ));
@@ -53,7 +73,13 @@ public class SupplyChainController {
                 "product", response
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to query product: id={}", productId);
+            logger.warn("Request failed to query product: id={} error={}", productId, e.getMessage());
+            // Return specific not-found message if applicable
+            if (isProductNotFound(e)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", String.format("Product with id: %s is not found", productId)
+                ));
+            }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "Product not found"
             ));
@@ -73,7 +99,12 @@ public class SupplyChainController {
                 "message", "Product updated successfully"
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to update product: id={}", productId);
+            logger.warn("Request failed to update product: id={} error={}", productId, e.getMessage());
+            if (isProductNotFound(e)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", String.format("Product with id: %s is not found", productId)
+                ));
+            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "Failed to update product"
             ));
@@ -90,7 +121,12 @@ public class SupplyChainController {
                 "message", "Product deleted successfully"
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to delete product: id={}", productId);
+            logger.warn("Request failed to delete product: id={} error={}", productId, e.getMessage());
+            if (isProductNotFound(e)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", String.format("Product with id: %s is not found", productId)
+                ));
+            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "Failed to delete product"
             ));
@@ -113,7 +149,7 @@ public class SupplyChainController {
                 "message", "Shipment created successfully"
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to create shipment: id={}", payload.get("shipmentId"));
+            logger.warn("Request failed to create shipment: id={} error={}", payload.get("shipmentId"), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "Failed to create shipment"
             ));
@@ -130,7 +166,7 @@ public class SupplyChainController {
                 "shipment", response
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to query shipment: id={}", shipmentId);
+            logger.warn("Request failed to query shipment: id={} error={}", shipmentId, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "Shipment not found"
             ));
@@ -147,7 +183,7 @@ public class SupplyChainController {
                     "product", response
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to query audit log id = {}", productId);
+            logger.warn("Request failed to query audit log id = {} error={}", productId, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                     "error", "Log not found"
             ));
@@ -166,9 +202,35 @@ public class SupplyChainController {
                 "message", "Shipment updated successfully"
             ));
         } catch (Exception e) {
-            logger.warn("Request failed to update shipment: id={}", shipmentId);
+            logger.warn("Request failed to update shipment: id={} error={}", shipmentId, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "Failed to update shipment"
+            ));
+        }
+    }
+
+    // New endpoint to place an order for a product
+    @PostMapping("/placeOrder")
+    public ResponseEntity<Map<String, String>> placeOrder(@RequestBody Map<String, Object> payload) {
+        logger.info("Received request to place order: productId={}, quantity={}", payload.get("productId"), payload.get("quantity"));
+        try {
+            String productId = payload.get("productId").toString();
+            String quantity = payload.get("quantity").toString();
+            byte[] result = fabricService.placeOrder(productId, quantity);
+            String response = new String(result);
+            return ResponseEntity.ok(Map.of(
+                "message", response
+            ));
+        } catch (Exception e) {
+            String prodId = payload.get("productId") == null ? "" : payload.get("productId").toString();
+            logger.warn("Request failed to place order: productId={} error={}", prodId, e.getMessage());
+            if (isProductNotFound(e)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", String.format("Product with id: %s is not found", prodId)
+                ));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Failed to place order"
             ));
         }
     }

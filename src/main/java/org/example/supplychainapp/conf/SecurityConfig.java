@@ -24,12 +24,12 @@ public class SecurityConfig {
     @Value("${security.allowed.paths:/api/auth/**,/swagger-ui/**,/v3/api-docs/**}")
     private String[] allowedPaths;
 
-    private final JwtAuthFilter jwtAuthFilter;
+    /*private final JwtAuthFilter jwtAuthFilter;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
-
+*/
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -42,18 +42,19 @@ public class SecurityConfig {
                 // Define which requests are allowed without authentication
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(allowedPaths).permitAll()
-                        .requestMatchers( "/api/assets/query/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers( "/api/assets/update/**").hasRole("ADMIN")
-                        .requestMatchers( "/api/assets/createProduct/**").hasRole("ADMIN")
-                        .requestMatchers( "/api/assets/removeProduct/**").hasRole("ADMIN")
-                        .requestMatchers( "/api/assets/createShipment/**").hasRole("ADMIN")
-                        .requestMatchers( "/api/assets/queryShipment/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers( "/api/assets/queryLogByProductId/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers( "/api/assets/updateShipment/**").hasRole("ADMIN")
+                        .requestMatchers("/assets/queryLogByProductId/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers( "/assets/queryProduct/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers( "/assets/update/**").hasRole("ADMIN")
+                        .requestMatchers( "/assets/createProduct/**").hasRole("ADMIN")
+                        .requestMatchers( "/assets/removeProduct/**").hasRole("ADMIN")
+                        .requestMatchers( "/assets/createShipment/**").hasRole("ADMIN")
+                        .requestMatchers( "/assets/queryShipment/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers( "/assets/queryLogByProductId/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers( "/assets/updateShipment/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                )
+                );
                 // Add JWT filter before UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

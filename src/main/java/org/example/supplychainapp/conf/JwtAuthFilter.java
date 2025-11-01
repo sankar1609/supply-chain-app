@@ -1,3 +1,4 @@
+/*
 package org.example.supplychainapp.conf;
 
 import io.jsonwebtoken.Claims;
@@ -67,3 +68,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+*/

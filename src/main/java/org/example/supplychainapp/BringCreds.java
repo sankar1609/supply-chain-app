@@ -1,5 +1,7 @@
+// src/main/java/org/example/supplychainapp/BringCreds.java
 package org.example.supplychainapp;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.hyperledger.fabric.gateway.Identities;
 import org.hyperledger.fabric.gateway.Identity;
 import org.hyperledger.fabric.gateway.Wallet;
@@ -10,10 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 
 public class BringCreds {
     public static void main(String[] args) throws IOException, CertificateException, InvalidKeyException {
+        // register BouncyCastle provider so PEM/ASN.1 classes are available at runtime
+        Security.addProvider(new BouncyCastleProvider());
+
         Path walletPath = Paths.get("wallet");
         Wallet wallet = Wallets.newFileSystemWallet(walletPath);
 
@@ -30,5 +36,4 @@ public class BringCreds {
 
         wallet.put("User1", identity);
     }
-
 }

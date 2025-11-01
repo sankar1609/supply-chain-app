@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,11 +14,16 @@ import static org.mockito.Mockito.*;
 class FabricServiceTest {
     private Contract contractMock;
     private FabricService fabricService;
+    private RestTemplate restTemplateMock;
+    private DiscoveryClient discoveryClientMock;
 
     @BeforeEach
     void setUp() {
         contractMock = Mockito.mock(Contract.class);
-        fabricService = new FabricService(contractMock);
+        restTemplateMock = Mockito.mock(RestTemplate.class);
+        discoveryClientMock = Mockito.mock(DiscoveryClient.class);
+        // create FabricService with remoteEnabled=false to force local (contract) path
+        fabricService = new FabricService(contractMock, false, true, "", "supplychain-service", restTemplateMock, discoveryClientMock);
     }
 
     @Test
@@ -67,7 +74,7 @@ class FabricServiceTest {
     @DisplayName("createShipment returns expected result on success")
     void createShipmentReturnsExpectedResult() throws Exception {
         byte[] expected = "shipmentCreated".getBytes();
-        when(contractMock.submitTransaction(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(expected);
+        when(contractMock.submitTransaction(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(expected);
         byte[] result = fabricService.createShipment("sid", "pid",
                 "origin", "dest", "carrier","quantity");
         assertArrayEquals(expected, result);

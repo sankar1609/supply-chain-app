@@ -11,7 +11,7 @@
 
     <properties>
         <java.version>17</java.version> <!-- required for Spring Boot 3.x -->
-        <spring.boot.version>3.3.4</spring.boot.version>
+        <spring.boot.version>3.5.6</spring.boot.version>
         <fabric.gateway.version>2.2.9</fabric.gateway.version>
     </properties>
 
@@ -32,6 +32,28 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- run to locate the old guava -->
+        <!-- mvn dependency:tree -Dincludes=com.google.guava:guava -->
+
+        <!-- Force a modern Guava on the classpath -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+        </dependency>
+
+        <!-- Example: exclude transitive guava from the Spring Cloud Eureka client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>4.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Hyperledger Fabric Gateway -->
@@ -73,6 +95,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- pom.xml: add inside <dependencies> -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.70</version>
         </dependency>
 
     </dependencies>
