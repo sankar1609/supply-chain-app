@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 @Configuration
@@ -21,15 +22,21 @@ public class FabricConfig {
     private Resource networkConfig;
 
     @Bean
-    public Gateway gateway() throws Exception {
-        Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet"));
+    public Gateway gateway() throws FabricConfigurationException {
+        try {
+            Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet"));
 
-        Gateway.Builder builder = Gateway.createBuilder()
-                .identity(wallet, "User1")
-                .networkConfig(networkConfig.getFile().toPath())
-                .discovery(false);
+            Gateway.Builder builder = Gateway.createBuilder()
+                    .identity(wallet, "User1")
+                    .networkConfig(networkConfig.getFile().toPath())
+                    .discovery(false);
 
-        return builder.connect();
+            return builder.connect();
+        } catch (IOException ioe) {
+            throw new FabricConfigurationException("Failed to load network configuration or wallet files", ioe);
+        } catch (RuntimeException re) {
+            throw new FabricConfigurationException("Failed to initialize Fabric Gateway", re);
+        }
     }
 
     @Bean

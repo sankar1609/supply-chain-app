@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,15 +14,13 @@ class FabricServiceTest {
     private Contract contractMock;
     private FabricService fabricService;
     private RestTemplate restTemplateMock;
-    private DiscoveryClient discoveryClientMock;
 
     @BeforeEach
     void setUp() {
         contractMock = Mockito.mock(Contract.class);
         restTemplateMock = Mockito.mock(RestTemplate.class);
-        discoveryClientMock = Mockito.mock(DiscoveryClient.class);
         // create FabricService with remoteEnabled=false to force local (contract) path
-        fabricService = new FabricService(contractMock, false, true, "", "supplychain-service", restTemplateMock, discoveryClientMock);
+        fabricService = new FabricService(contractMock, false, "", restTemplateMock);
     }
 
     @Test
@@ -39,8 +36,10 @@ class FabricServiceTest {
     @DisplayName("createProduct throws exception on failure")
     void createProductThrowsException() throws Exception {
         when(contractMock.submitTransaction(anyString(), anyString(), anyString(), anyString(), anyString())).thenThrow(new RuntimeException("fail"));
-        Exception ex = assertThrows(Exception.class, () -> fabricService.createProduct("1", "name", "cat", "quantity"));
-        assertEquals("fail", ex.getMessage());
+        FabricServiceException ex = assertThrows(FabricServiceException.class, () -> fabricService.createProduct("1", "name", "cat", "quantity"));
+        // service wraps the original exception; ensure the cause message is preserved
+        assertNotNull(ex.getCause());
+        assertEquals("fail", ex.getCause().getMessage());
     }
 
     @Test

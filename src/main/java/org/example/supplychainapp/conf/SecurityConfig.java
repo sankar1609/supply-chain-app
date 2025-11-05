@@ -1,16 +1,15 @@
 package org.example.supplychainapp.conf;
 
+import org.example.supplychainapp.Constants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,12 +23,6 @@ public class SecurityConfig {
     @Value("${security.allowed.paths:/api/auth/**,/swagger-ui/**,/v3/api-docs/**}")
     private String[] allowedPaths;
 
-    /*private final JwtAuthFilter jwtAuthFilter;
-
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
-*/
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -42,20 +35,17 @@ public class SecurityConfig {
                 // Define which requests are allowed without authentication
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(allowedPaths).permitAll()
-                        .requestMatchers("/assets/queryLogByProductId/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers( "/assets/queryProduct/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers( "/assets/update/**").hasRole("ADMIN")
-                        .requestMatchers( "/assets/createProduct/**").hasRole("ADMIN")
-                        .requestMatchers( "/assets/removeProduct/**").hasRole("ADMIN")
-                        .requestMatchers( "/assets/createShipment/**").hasRole("ADMIN")
-                        .requestMatchers( "/assets/queryShipment/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers( "/assets/queryLogByProductId/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers( "/assets/updateShipment/**").hasRole("ADMIN")
+                        .requestMatchers("/assets/queryLogByProductId/**").hasAnyRole(Constants.ROLE_ADMIN,Constants.ROLE_USER)
+                        .requestMatchers( "/assets/queryProduct/**").hasAnyRole(Constants.ROLE_USER,Constants.ROLE_ADMIN)
+                        .requestMatchers( "/assets/update/**").hasRole(Constants.ROLE_ADMIN)
+                        .requestMatchers( "/assets/createProduct/**").hasRole(Constants.ROLE_ADMIN)
+                        .requestMatchers( "/assets/removeProduct/**").hasRole(Constants.ROLE_ADMIN)
+                        .requestMatchers( "/assets/createShipment/**").hasRole(Constants.ROLE_ADMIN)
+                        .requestMatchers( "/assets/queryShipment/**").hasAnyRole(Constants.ROLE_ADMIN,Constants.ROLE_USER)
+                        .requestMatchers( "/assets/queryLogByProductId/**").hasAnyRole(Constants.ROLE_ADMIN,Constants.ROLE_USER)
+                        .requestMatchers( "/assets/updateShipment/**").hasRole(Constants.ROLE_ADMIN)
                         .anyRequest().authenticated()
                 );
-                // Add JWT filter before UsernamePasswordAuthenticationFilter
-                //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
